@@ -21,8 +21,10 @@ export interface SetupProps {
 }
 
 // Stub: props are defined for the real screen's contract (DEV-03) but
-// not consumed here. Underscore prefix opts out of TS noUnusedParameters
-// AND eslint @typescript-eslint/no-unused-vars (default argsIgnorePattern).
-export default function Setup(_props: SetupProps) {
+// not consumed here. We `void`-consume the binding so both
+// noUnusedParameters (TS) and @typescript-eslint/no-unused-vars (eslint)
+// see it as read — preserving the typed contract for DEV-03 to inherit.
+export default function Setup(props: SetupProps) {
+  void props
   return <div data-testid="setup-stub" />
 }

@@ -18,8 +18,10 @@ export interface DiagnosticProps {
 }
 
 // Stub: props are defined for the real screen's contract (DEV-05) but
-// not consumed here. Underscore prefix opts out of TS noUnusedParameters
-// AND eslint @typescript-eslint/no-unused-vars (default argsIgnorePattern).
-export default function Diagnostic(_props: DiagnosticProps) {
+// not consumed here. We `void`-consume the binding so both
+// noUnusedParameters (TS) and @typescript-eslint/no-unused-vars (eslint)
+// see it as read — preserving the typed contract for DEV-05 to inherit.
+export default function Diagnostic(props: DiagnosticProps) {
+  void props
   return <div data-testid="diagnostic-stub" />
 }
