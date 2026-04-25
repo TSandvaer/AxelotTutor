@@ -1,8 +1,17 @@
 # Setup Screen — UX Spec
 
-**Ticket:** UX-01 (`86c9gqpyy`) · **Status:** v1 spec, awaiting PSY-01 audit
+**Ticket:** UX-01 (`86c9gqpyy`) · **Status:** v1.1 (PSY-01 findings folded in)
 **Owner:** Kyle · **Implements:** DEV-03
 **Surfaces:** First-run setup phase. Audio-unlock surface for fresh-fork sessions.
+
+> **Folded-in PSY-01 (Dave):** the age-5 self-report risk and age-10 "babied" risk
+> shaped three changes vs the original v1 spec:
+>
+> 1. **Header reframe** — "How old are you?" → "So Axel knows where to start!" (instrumental, not identity-classifying — removes surveillance read for older kids).
+> 2. **Grade sub-labels on tiles 9 and 10** ("3rd / 4th" and "4th / 5th grade") — gives 9–10-year-olds a self-concept hook without babying younger kids.
+> 3. **Parent-assist nudge on age-5 tap only** — non-blocking soft prompt for the unreliable end of the band. See _Error path — age-5 self-report ambiguity_ below.
+>
+> Source: `design/research/psy-01-age-pick-audit.md` (Dave, 2026-04-25). Open Q #5 ("age-tile order") is resolved by this audit.
 
 ---
 
@@ -37,15 +46,18 @@ Portrait-first iPad. All taps stay inside `env(safe-area-inset-*)`. Background r
 │   └─────────────────────────────────┘   │     pink border, white fill).
 │                                         │
 │   ┌─────────────────────────────────┐   │  ← Name input. Tappable card.
-│   │   ✏️  [your name here]           │   │     Empty placeholder uses an
+│   │   ✏️  [your name here]          │   │     Empty placeholder uses an
 │   └─────────────────────────────────┘   │     iconographic pencil glyph,
 │                                         │     not a copy prompt.
 │                                         │
-│   How old are you?                      │  ← Age section header (mirrors
-│                                         │     spoken line; ≥28pt).
+│   So Axel knows where to start!         │  ← Age section header (per
+│                                         │     PSY-01: instrumental, not
+│                                         │     identity-classifying).
 │   ┌────┬────┬────┬────┬────┬────┐       │
 │   │ 5  │ 6  │ 7  │ 8  │ 9  │ 10 │       │  ← 6 age tiles, single row.
-│   └────┴────┴────┴────┴────┴────┘       │     Each tile 76×76pt min.
+│   │    │    │    │    │ 3rd│ 4th│       │     Each tile 76×96pt (taller
+│   │    │    │    │    │ 4th│ 5th│       │     to fit the optional grade
+│   └────┴────┴────┴────┴────┴────┘       │     sub-label on 9 + 10).
 │                                         │
 │            ┌──────────────┐             │
 │            │    START →   │             │  ← Primary CTA. Disabled until
@@ -60,15 +72,15 @@ Portrait-first iPad. All taps stay inside `env(safe-area-inset-*)`. Background r
 
 ### Component breakdown (top → bottom)
 
-| Region | Component                | Size / placement                     | Notes                                                                                                                                                                                                        |
-| ------ | ------------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1      | `<AxelPose pose="idle">` | `h-[38vh]`, centered                 | Same `m.img` pattern as Greet. `layoutId="axel"` shared with Greet. **Breathing loop only after first user tap** (see _Audio-unlock contract_).                                                              |
-| 2      | `<SpeechRibbon>`         | 88% width, max 640px, ~mt-4          | White card, 3px `axel-pink` border, rounded-3xl, padding 6/4. Text is `font-display`, `text-[2.4rem]`, `leading-snug`. Reads the active prompt; word-by-word reveal is **optional v2** (see open questions). |
-| 3      | `<NameInput>`            | 88% width, max 480px, mt-6           | Tappable card with rounded border, opens iOS keyboard on focus. 60pt min height. Pencil glyph left, name text or empty state right. 24-char hard cap.                                                        |
-| 4      | Age section header       | `text-[2.0rem] font-display`, mt-8   | Mirrors the line "How old are you?" Title-case, no question mark in the on-screen text (see _Copy_).                                                                                                         |
-| 5      | `<AgeTileRow>`           | mt-3, 6 tiles, single row            | Each tile: 76×76pt, rounded-2xl, 3px `axel-pink` border, white fill, big numeral in `text-[2.6rem] font-display`. Selected state: `axel-rose` fill, white numeral, scale 1.04.                               |
-| 6      | `<StartCta>`             | mt-10, h-[64pt] min, 240pt min width | Primary button. `axel-rose` fill, white text "Start", trailing arrow glyph. Disabled state: opacity 50%, no scale-bob.                                                                                       |
-| 7      | `<DiagnosticLink>`       | mt-4, mb-8                           | `<button type="button">` shaped as inline link, `text-ink/70`, `text-[1.1rem]`, underline-on-hover (cosmetic; real read is iconographic). Trailing arrow glyph.                                              |
+| Region | Component                | Size / placement                     | Notes                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------ | ------------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1      | `<AxelPose pose="idle">` | `h-[38vh]`, centered                 | Same `m.img` pattern as Greet. `layoutId="axel"` shared with Greet. **Breathing loop only after first user tap** (see _Audio-unlock contract_).                                                                                                                                                                                                                                       |
+| 2      | `<SpeechRibbon>`         | 88% width, max 640px, ~mt-4          | White card, 3px `axel-pink` border, rounded-3xl, padding 6/4. Text is `font-display`, `text-[2.4rem]`, `leading-snug`. Reads the active prompt; word-by-word reveal is **optional v2** (see open questions).                                                                                                                                                                          |
+| 3      | `<NameInput>`            | 88% width, max 480px, mt-6           | Tappable card with rounded border, opens iOS keyboard on focus. 60pt min height. Pencil glyph left, name text or empty state right. 24-char hard cap.                                                                                                                                                                                                                                 |
+| 4      | Age section header       | `text-[2.0rem] font-display`, mt-8   | "So Axel knows where to start!" — per PSY-01, instrumental framing reduces the surveillance read for older kids and gives all ages a "why". Mirrors the spoken line L3 (see _Copy_).                                                                                                                                                                                                  |
+| 5      | `<AgeTileRow>`           | mt-3, 6 tiles, single row            | Each tile: 76×96pt (was 76×76pt), rounded-2xl, 3px `axel-pink` border, white fill. Numeral in `text-[2.6rem] font-display`. Tiles **9 and 10** carry a small grade sub-label below the numeral ("3rd / 4th" and "4th / 5th") in `text-[0.85rem] text-ink/60`. Selected state: `axel-rose` fill, white numeral, white sub-label, scale 1.04. Tiles 5–8 have no sub-label (no babying). |
+| 6      | `<StartCta>`             | mt-10, h-[64pt] min, 240pt min width | Primary button. `axel-rose` fill, white text "Start", trailing arrow glyph. Disabled state: opacity 50%, no scale-bob.                                                                                                                                                                                                                                                                |
+| 7      | `<DiagnosticLink>`       | mt-4, mb-8                           | `<button type="button">` shaped as inline link, `text-ink/70`, `text-[1.1rem]`, underline-on-hover (cosmetic; real read is iconographic). Trailing arrow glyph.                                                                                                                                                                                                                       |
 
 ### Thumb zones (iPad portrait, child-sized hand)
 
@@ -80,16 +92,17 @@ Portrait-first iPad. All taps stay inside `env(safe-area-inset-*)`. Background r
 
 All Melody / Axel speech respects the ~200-word cap. **Every on-screen string is also spoken**, except numerals on the age tiles (which Axel says when first introducing the row, then is quiet about).
 
-| #   | Trigger                                                                                 | Spoken (Axel TTS)              | On-screen text mirror                                                               | Caption-reveal timing                                                                                                         |
-| --- | --------------------------------------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| L1  | Mount → first tap unlocks audio → speak L1 immediately on unlock                        | "Hi there!"                    | "Hi there!"                                                                         | Single chunk, 250 ms fade in.                                                                                                 |
-| L2  | After L1 ends + 400 ms gap                                                              | "What's your name?"            | "What's your name?"                                                                 | Word-by-word reveal optional (see open Qs). Chunk-fade is acceptable v1.                                                      |
-| L3  | After name committed (Done on iOS keyboard or Start tapped with name filled but no age) | "How old are you?"             | "How old are you?"                                                                  | Same chunk-fade.                                                                                                              |
-| L4  | If start tapped while disabled                                                          | (no speech)                    | A 200 ms gentle Axel ear-twitch + the disabled-tile/disabled-button shake (no TTS). | —                                                                                                                             |
-| L5  | After Start tap (success)                                                               | "Yay! Let's go!"               | (none — screen unmounts)                                                            | Speak synchronously inside the tap; chime fires on the same tick; advance scheduled at 600 ms (Axel happy ear-wiggle frames). |
-| L6  | If diagnostic link tapped                                                               | "Okay, a few quick questions." | "Okay, a few quick questions."                                                      | Speak synchronously inside the tap; advance scheduled at 800 ms.                                                              |
+| #   | Trigger                                                                                 | Spoken (Axel TTS)               | On-screen text mirror                                                               | Caption-reveal timing                                                                                                                                                                |
+| --- | --------------------------------------------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| L1  | Mount → first tap unlocks audio → speak L1 immediately on unlock                        | "Hi there!"                     | "Hi there!"                                                                         | Single chunk, 250 ms fade in.                                                                                                                                                        |
+| L2  | After L1 ends + 400 ms gap                                                              | "What's your name?"             | "What's your name?"                                                                 | Word-by-word reveal optional (see open Qs). Chunk-fade is acceptable v1.                                                                                                             |
+| L3  | After name committed (Done on iOS keyboard or Start tapped with name filled but no age) | "So Axel knows where to start!" | "So Axel knows where to start!"                                                     | Same chunk-fade. Per PSY-01: instrumental framing, not "How old are you?" (which reads as surveillance to older kids).                                                               |
+| L3a | First time age-5 tile tapped in this session                                            | "Is a grown-up nearby?"         | "Is a grown-up nearby?" (in the ribbon, replacing L3 for ~3s)                       | PSY-01 parent-assist nudge. Non-blocking — tile is selected, CTA is enabled. Ribbon then returns to L3. **Plays at most once per session** even if the kid taps 5 → other → 5 again. |
+| L4  | If start tapped while disabled                                                          | (no speech)                     | A 200 ms gentle Axel ear-twitch + the disabled-tile/disabled-button shake (no TTS). | —                                                                                                                                                                                    |
+| L5  | After Start tap (success)                                                               | "Yay! Let's go!"                | (none — screen unmounts)                                                            | Speak synchronously inside the tap; chime fires on the same tick; advance scheduled at 600 ms (Axel happy ear-wiggle frames).                                                        |
+| L6  | If diagnostic link tapped                                                               | "Okay, a few quick questions."  | "Okay, a few quick questions."                                                      | Speak synchronously inside the tap; advance scheduled at 800 ms.                                                                                                                     |
 
-**Vocabulary used (English only, no Tagalog bridging):** _hi, there, what, name, how, old, are, you, yay, let, go, okay, few, quick, questions_ — 15 unique words. Whole budget remaining for downstream screens.
+**Vocabulary used (English only, no Tagalog bridging):** _hi, there, what, name, so, axel, knows, where, to, start, is, a, grown-up, nearby, yay, let, go, okay, few, quick, questions_ — 21 unique words. Whole budget remaining for downstream screens.
 
 **Strict rules:**
 
@@ -248,7 +261,15 @@ Axel breathing softly, ribbon empty (or last spoken line still showing), name in
 - **Never a red X. Never a "you forgot something" toast.**
 - The disabled element(s) shake once (300 ms). If both name and age are missing, **only the age row** shakes — name field gets a softer pulse (the keyboard reopening is louder than a shake at this scale).
 - Axel does a single 600 ms ear-twitch (not full puzzled — that's reserved for wrong answers in actual lessons). No TTS.
-- The first time this happens in the session, after the shake completes, speak L3 ("How old are you?") if no age picked, OR speak L2 ("What's your name?") if no name. Subsequent attempts in the same session: silent shake only (don't nag).
+- The first time this happens in the session, after the shake completes, speak L3 ("So Axel knows where to start!") if no age picked, OR speak L2 ("What's your name?") if no name. Subsequent attempts in the same session: silent shake only (don't nag).
+
+### Age-5 self-report ambiguity (PSY-01)
+
+- Per Dave's PSY-01 audit, age-5 self-report on a numeral tile is unreliable: 5-year-olds may tap "6" because they're "almost 6", or tap a tile because the tile looks appealing. Adaptive engine recovers, but a soft parent-assist nudge cuts the bad-pick rate at near-zero cost.
+- **First time the age-5 tile is tapped in a session:** the ribbon swaps to L3a ("Is a grown-up nearby?") for ~3s. Tile stays selected. CTA enables (i.e. tap is committed, not blocked). After ~3s the ribbon returns to whatever it was showing.
+- **Plays at most once per session.** If the kid taps 5 → 6 → 5, the second tap of 5 doesn't re-trigger L3a.
+- **Does not play for ages 6–10.** PSY-01 evidence is specific to the 5-year-old end of the band.
+- **Accessibility:** the audio is the optional layer — the on-screen ribbon swap is the load-bearing communication. If TTS is muted (e.g. screen-reader user with system speech off), the ribbon swap still fires.
 
 ### Empty / first-visit (this IS first-visit)
 
@@ -300,9 +321,9 @@ Same shape. App routes to Diagnostic. (Diagnostic is a separate spec — UX-02; 
 
 ### Tailwind tokens used
 
-`bg-axel-cream` · `text-ink` · `border-axel-pink` · `bg-axel-rose` (selected tile, CTA fill) · `text-ink/70` (diagnostic link) · `font-display` · `text-[2.4rem]` (ribbon body) · `text-[2.6rem]` (age tile numeral) · `text-[2.0rem]` (age section header)
+`bg-axel-cream` · `text-ink` · `border-axel-pink` · `bg-axel-rose` (selected tile, CTA fill) · `text-ink/70` (diagnostic link) · `text-ink/60` (grade sub-labels) · `font-display` · `text-[2.4rem]` (ribbon body) · `text-[2.6rem]` (age tile numeral) · `text-[2.0rem]` (age section header) · `text-[0.85rem]` (grade sub-label)
 
-All tokens exist today as placeholders; final values land with UX-03 (this PR pair).
+All tokens land with their final UX-03 values (this PR pair).
 
 ## Acceptance criteria
 
@@ -323,11 +344,20 @@ Jessica reads these. Each is testable on an iPad in iPad Safari + the installed 
 - [ ] Name input opens the iOS keyboard on tap. Done key on the keyboard commits the name and dismisses the keyboard.
 - [ ] Name accepts up to 24 characters; the 25th keystroke is rejected (no error, just doesn't land).
 - [ ] Trimming a name down to all whitespace re-disables the Start CTA.
-- [ ] Age tiles are 76×76pt minimum. Tapping a tile selects it, deselects any other.
+- [ ] Age tiles are 76×96pt minimum (taller than wide to fit grade sub-labels). Tapping a tile selects it, deselects any other.
+- [ ] **Tiles 9 and 10 carry visible grade sub-labels** ("3rd / 4th" and "4th / 5th") in `text-[0.85rem]`. Tiles 5–8 do not.
+- [ ] Age section header reads "So Axel knows where to start!" — **never** "How old are you?".
 - [ ] Selected age tile is visually distinct in BOTH color (axel-rose fill) AND scale (1.04) — color-blind users have the scale, motion-sensitive users (reduced motion) have the color. Don't drop either.
 - [ ] Start CTA is disabled until name has ≥1 non-space char AND an age is selected.
 - [ ] Tapping a disabled Start CTA shakes the missing field(s) and (first time only) speaks the relevant prompt. No red X, no toast, no error message.
 - [ ] Diagnostic link is always enabled and visually de-emphasised relative to Start.
+
+### PSY-01 age-5 nudge
+
+- [ ] First tap of the age-5 tile in a session swaps the ribbon to "Is a grown-up nearby?" for ~3 s, then returns to L3.
+- [ ] The age-5 nudge plays at most once per session — re-tapping the 5 tile after switching to another age does not re-trigger it.
+- [ ] Tapping any other age tile (6/7/8/9/10) does NOT trigger the parent-assist nudge.
+- [ ] The 5-tile selection is committed regardless of whether the nudge fired (CTA enables, tile is `axel-rose` filled).
 
 ### Routing
 
@@ -339,7 +369,7 @@ Jessica reads these. Each is testable on an iPad in iPad Safari + the installed 
 
 - [ ] Every spoken line has an on-screen mirror. No spoken line is unscripted.
 - [ ] No on-screen text is shown that Axel doesn't also say (excluding the age numerals after the row first introduces).
-- [ ] Ribbon body text is ≥28pt (≥37px). Age tile numerals are ≥34pt.
+- [ ] Ribbon body text is ≥28pt (≥37px). Age tile numerals are ≥34pt. Grade sub-labels are ≥11pt (`text-[0.85rem]` ≈ 13.6px ≈ 10.2pt → adjust upward to `text-[0.95rem]` if iPad 1× rendering audits below 11pt).
 - [ ] Touch target audit: every interactive element ≥60×60pt (we exceed iOS HIG's 44pt floor on purpose for the kid hand).
 - [ ] All interactive elements have an `aria-label` matching what Axel says or what the icon means.
 - [ ] No copy contains Tagalog, Danish, or any non-English string.
@@ -348,6 +378,7 @@ Jessica reads these. Each is testable on an iPad in iPad Safari + the installed 
 
 - [ ] With `prefers-reduced-motion: reduce`: Axel does not breathe; ring is a static glow; tile select drops the scale change; CTA does not bob.
 - [ ] Disabled CTA shake **still plays** — it's communicating, not decorative.
+- [ ] Age-5 ribbon swap (L3 → L3a → L3) **still fires** — communicating, not decorative.
 
 ### Performance
 
@@ -359,14 +390,15 @@ Jessica reads these. Each is testable on an iPad in iPad Safari + the installed 
 
 Flag for Thomas / orchestrator routing:
 
-1. **Word-by-word caption reveal vs chunk fade?** Greet does word-by-word via TTS boundary events. Setup ribbons are short ("Hi there!", "What's your name?", "How old are you?") — chunk-fade may read better at 4 words. **Kyle's recommendation: chunk-fade v1, defer word-by-word to v2 if Dave's audit prefers it.** PSY-01 may have an opinion here.
+1. **Word-by-word caption reveal vs chunk fade?** Greet does word-by-word via TTS boundary events. Setup ribbons are short ("Hi there!", "What's your name?", "So Axel knows where to start!", "Is a grown-up nearby?") — chunk-fade may read better at 4–6 words. **Kyle's recommendation: chunk-fade v1, defer word-by-word to v2.** PSY-01 didn't address this.
 2. **Should the diagnostic link be enabled before name + age are filled?** Brief says "secondary link", which I'm reading as always-enabled. Confirm: if enabled before name, the kid never types her name, the diagnostic captures age via probes — but where does her name end up? Two options: (a) prompt for name AFTER diagnostic before Greet, (b) accept that diagnostic-path users get a default-named save until UX-04 introduces a settings sheet. Default to (b) for v1; flag (a) as a UX-01.1 follow-up.
-3. **Pronunciation of "Axel" via Web Speech TTS.** Two camps: `AK-suh-lot-ul` (the salamander) vs `Axel` (the name). The kid is meeting Axel-the-axolotl, but the Web Speech English-US voice will likely say "Axel" the name regardless. **Kyle's recommendation: don't fight it — let the engine say "Axel" the name; the visual carries the axolotl read.** Document in UX-04 brief.
+3. **Pronunciation of "Axel" via Web Speech TTS.** Two camps: `AK-suh-lot-ul` (the salamander) vs `Axel` (the name). The kid is meeting Axel-the-axolotl, but the Web Speech English-US voice will likely say "Axel" the name regardless. **Kyle's recommendation: don't fight it — let the engine say "Axel" the name; the visual carries the axolotl read.** Document in UX-04 brief. (Confirmed in `design/axel-character-bible.md` §7.)
 4. **Name TTS safety pass.** Once the kid types her name, can we say it back? Web Speech engines garble many names (especially Tagalog ones). **Recommendation: never speak the name in v1** (already baked into L5). Open: do we want a parent-facing "test how Axel says her name" affordance in the Settings sheet (future ticket)? Not Setup-screen-scope.
-5. **Age-tile order — 5–10 left-to-right, or 10–5 right-to-left?** Brief says 5/6/7/8/9/10. Default: ascending left-to-right. PSY-01 may have an opinion on whether older kids feel babied by being grouped with 5-year-olds in the same row; if so, consider stacked 2×3 or 3×2. **v1: single ascending row.**
+5. ~~**Age-tile order — 5–10 left-to-right, or 10–5 right-to-left?**~~ **Resolved by PSY-01.** Single ascending row 5/6/7/8/9/10 is fine; the babying risk for older kids is mitigated by the new instrumental header copy + grade sub-labels on 9 and 10, not by row reordering.
 6. **What happens if the kid taps an age tile, then the keyboard, then the same tile again?** Should re-tapping deselect (toggle) or hold (radio)? Default: **radio behaviour, no deselect** — once an age is set, you can change it but you can't have _no_ age. Avoids the disabled-CTA-confusion path.
-7. **Should the Start CTA still bob in reduced-motion mode while disabled?** Default per spec above: no. But that removes the only "I'm waiting on you" cue for reduced-motion users. **Alternate: keep bob but at 30% reduced amplitude**. Flag for Dave on PSY-01.
+7. **Should the Start CTA still bob in reduced-motion mode while disabled?** Default per spec above: no. But that removes the only "I'm waiting on you" cue for reduced-motion users. **Alternate: keep bob but at 30% reduced amplitude**. Open for the next Dave consult slot.
+8. **Grade sub-label phrasing globally.** PSY-01 specifies "3rd / 4th" and "4th / 5th" using US grade labels. Marian (the original target user) is in the Philippines / Danish system. **For Axelot v1 the brief is English-only and US grade labels match the band — keep as spec'd.** v2 i18n ticket can revisit. (Flagging because the grade map is not 1:1 with age in every system.)
 
 ---
 
-**Spec version:** v1 · **Awaiting:** PSY-01 audit (Dave) — orchestrator routes a UX-01.1 revision after Dave returns.
+**Spec version:** v1.1 · **PSY-01 folded in** (Dave 2026-04-25). Open questions remain for Thomas routing.
