@@ -25,6 +25,28 @@ vi.mock('./lib/sfx', () => ({
   })),
 }))
 
+// Routing test scope: assert which route App lands on, not the inner
+// behaviour of each screen. Stub Greet and Math so this file isn't
+// entangled with their mount-time effect chains (audio-unlock watchdog,
+// sequence builder, cloud-drift animation under fake timers, etc.) —
+// those screens have their own dedicated tests.
+vi.mock('./screens/Greet', () => ({
+  default: () => <div data-testid="greet" />,
+}))
+vi.mock('./screens/Math', () => ({
+  default: () => <div data-testid="math" />,
+}))
+
+// Routing branch under test: App reads loadProgress() once on splash exit.
+// Mock the module so each test can dictate the first-run vs returning-user
+// branch without touching real localStorage. The vi.fn() identity is
+// stable across the suite so we can re-target it per test via
+// mockReturnValue.
+vi.mock('./lib/progress', () => ({
+  loadProgress: vi.fn(() => null),
+}))
+import { loadProgress } from './lib/progress'
+
 const ORIGINAL_LOCATION = window.location
 
 function setSearch(search: string): void {
@@ -41,34 +63,78 @@ function restoreSearch(): void {
   })
 }
 
+/**
+ * Advance through the splash auto-advance + AnimatePresence exit. Splash
+ * caps at 3000 ms cold; the extra 500 ms covers the AnimatePresence exit
+ * transition so the next route is committed by the time we assert.
+ */
+async function advancePastSplash(): Promise<void> {
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(3000)
+  })
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(500)
+  })
+}
+
 describe('App routing skeleton', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     window.sessionStorage.clear()
+    // Default: first-run (no progress). Individual tests override.
+    vi.mocked(loadProgress).mockReturnValue(null)
   })
 
   afterEach(() => {
     vi.useRealTimers()
     restoreSearch()
+    vi.mocked(loadProgress).mockReset()
   })
 
-  it('starts on Splash and auto-advances to the Greet screen', async () => {
+  it('starts on Splash and routes to Setup on first run', async () => {
+    vi.mocked(loadProgress).mockReturnValue(null)
+
+    const { getByTestId } = render(<App />)
+    expect(getByTestId('app-root').getAttribute('data-route')).toBe('splash')
+
+    await advancePastSplash()
+
+    // First-run: Splash → Setup. We assert on `data-route` rather than
+    // mounted test-ids so the test isn't sensitive to AnimatePresence's
+    // exit-animation timing under fake timers (motion's exit queue can
+    // wedge across tests in jsdom; the route state is the contract this
+    // ticket actually owns).
+    expect(getByTestId('app-root').getAttribute('data-route')).toBe('setup')
+  })
+
+  it('routes returning users (existing progress) straight to Greet', async () => {
+    // Returning-user branch: any non-null Progress shape is enough — App
+    // only checks `=== null`, it doesn't introspect the doc. We use a
+    // minimal object cast so the test doesn't depend on the v1/v2 schema
+    // shape that DEV-01 is bumping in parallel.
+    vi.mocked(loadProgress).mockReturnValue(
+      {} as ReturnType<typeof loadProgress>,
+    )
+
+    const { getByTestId } = render(<App />)
+    expect(getByTestId('app-root').getAttribute('data-route')).toBe('splash')
+
+    await advancePastSplash()
+
+    expect(getByTestId('app-root').getAttribute('data-route')).toBe('greet')
+  })
+
+  it('only consults loadProgress once, on splash exit', async () => {
+    vi.mocked(loadProgress).mockReturnValue(null)
+
     render(<App />)
-    expect(screen.getByTestId('splash')).toBeInTheDocument()
-    expect(screen.queryByTestId('greet')).toBeNull()
+    // Pre-splash-exit: should not have been called yet.
+    expect(vi.mocked(loadProgress)).not.toHaveBeenCalled()
 
-    // Cold start by default in jsdom — wait the cold cap.
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(3000)
-    })
+    await advancePastSplash()
 
-    // AnimatePresence may keep the splash element in the tree briefly while
-    // its exit animation runs; advance enough for that to finish too.
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500)
-    })
-
-    expect(screen.getByTestId('greet')).toBeInTheDocument()
+    // Exactly one read on the splash-exit branch.
+    expect(vi.mocked(loadProgress)).toHaveBeenCalledTimes(1)
   })
 
   describe('debug overlay', () => {
