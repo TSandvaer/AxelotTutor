@@ -93,7 +93,7 @@ describe('loadProgress', () => {
   })
 
   it('round-trips a default Progress through save+load', () => {
-    const initial = defaultProgress('Test')
+    const initial = defaultProgress('Test', 7)
     saveProgress(initial)
 
     const loaded = loadProgress()
@@ -139,7 +139,10 @@ describe('loadProgress', () => {
   })
 
   it('refuses future schema versions rather than guessing', () => {
-    const future = { ...defaultProgress(), schemaVersion: 99 } as unknown
+    const future = {
+      ...defaultProgress('Friend', 7),
+      schemaVersion: 99,
+    } as unknown
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(future))
     expect(loadProgress()).toBeNull()
   })
@@ -152,7 +155,7 @@ describe('saveProgress', () => {
   })
 
   it('writes under the documented key', () => {
-    const p = defaultProgress()
+    const p = defaultProgress('Friend', 7)
     saveProgress(p)
     const raw = window.localStorage.getItem(STORAGE_KEY)
     expect(raw).not.toBeNull()
@@ -160,7 +163,7 @@ describe('saveProgress', () => {
   })
 
   it('trims session history to MAX_SESSION_HISTORY', () => {
-    const base = defaultProgress()
+    const base = defaultProgress('Friend', 7)
     const overflow = MAX_SESSION_HISTORY + 7
     const history: SessionHistoryEntry[] = Array.from(
       { length: overflow },
@@ -188,14 +191,14 @@ describe('saveProgress', () => {
         throw new Error('QuotaExceededError')
       })
 
-    expect(() => saveProgress(defaultProgress())).not.toThrow()
+    expect(() => saveProgress(defaultProgress('Friend', 7))).not.toThrow()
     expect(spy).toHaveBeenCalled()
   })
 })
 
 describe('clearProgress', () => {
   it('removes the stored doc', () => {
-    saveProgress(defaultProgress())
+    saveProgress(defaultProgress('Friend', 7))
     expect(window.localStorage.getItem(STORAGE_KEY)).not.toBeNull()
     clearProgress()
     expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull()
@@ -204,7 +207,7 @@ describe('clearProgress', () => {
 
 describe('migrate', () => {
   it('is identity for v2 input', () => {
-    const p = defaultProgress()
+    const p = defaultProgress('Friend', 7)
     expect(migrate(p)).toEqual(p)
   })
 
@@ -234,7 +237,7 @@ describe('migrate', () => {
   })
 
   it('returns null for future versions', () => {
-    const future = { ...defaultProgress(), schemaVersion: 99 }
+    const future = { ...defaultProgress('Friend', 7), schemaVersion: 99 }
     expect(migrate(future)).toBeNull()
   })
 
@@ -251,7 +254,7 @@ describe('migrate', () => {
   it('returns null when v2-shaped data fails validation post-migration', () => {
     // A v2 doc with an out-of-band age must be rejected even if the rest
     // is well-formed — the runtime guard is the safety net.
-    const base = defaultProgress()
+    const base = defaultProgress('Friend', 7)
     const bad = { ...base, profile: { ...base.profile, age: 4 } }
     expect(migrate(bad)).toBeNull()
   })
@@ -321,7 +324,7 @@ describe('isProgressV1', () => {
   })
 
   it('rejects v2 documents (schemaVersion 2)', () => {
-    expect(isProgressV1(defaultProgress())).toBe(false)
+    expect(isProgressV1(defaultProgress('Friend', 7))).toBe(false)
   })
 
   it('rejects missing skill nodes', () => {
@@ -342,7 +345,7 @@ describe('isProgressV1', () => {
 
 describe('isProgressV2', () => {
   it('accepts default progress', () => {
-    expect(isProgressV2(defaultProgress())).toBe(true)
+    expect(isProgressV2(defaultProgress('Friend', 7))).toBe(true)
   })
 
   it('rejects v1-shaped documents', () => {
@@ -350,7 +353,7 @@ describe('isProgressV2', () => {
   })
 
   it('rejects missing skill nodes', () => {
-    const p = defaultProgress() as unknown as Progress
+    const p = defaultProgress('Friend', 7) as unknown as Progress
     const broken = {
       ...p,
       skillLevels: { ...p.skillLevels, 'add-to-10': undefined },
@@ -359,13 +362,13 @@ describe('isProgressV2', () => {
   })
 
   it('rejects unknown character', () => {
-    const p = defaultProgress()
+    const p = defaultProgress('Friend', 7)
     const broken = { ...p, profile: { ...p.profile, character: 'kitty' } }
     expect(isProgressV2(broken)).toBe(false)
   })
 
   it('rejects ages outside the 5..10 band', () => {
-    const p = defaultProgress()
+    const p = defaultProgress('Friend', 7)
     for (const age of [4, 11, 0, -1, 7.5, NaN, Infinity]) {
       const broken = { ...p, profile: { ...p.profile, age } }
       expect(isProgressV2(broken)).toBe(false)
@@ -373,19 +376,19 @@ describe('isProgressV2', () => {
   })
 
   it('rejects non-numeric ages', () => {
-    const p = defaultProgress()
+    const p = defaultProgress('Friend', 7)
     const broken = { ...p, profile: { ...p.profile, age: '7' } }
     expect(isProgressV2(broken)).toBe(false)
   })
 
   it('rejects setupCompletedISO of the wrong type', () => {
-    const p = defaultProgress()
+    const p = defaultProgress('Friend', 7)
     const broken = { ...p, profile: { ...p.profile, setupCompletedISO: 0 } }
     expect(isProgressV2(broken)).toBe(false)
   })
 
   it('rejects diagnosticCompletedISO of the wrong type', () => {
-    const p = defaultProgress()
+    const p = defaultProgress('Friend', 7)
     const broken = {
       ...p,
       profile: { ...p.profile, diagnosticCompletedISO: 0 },
@@ -394,7 +397,7 @@ describe('isProgressV2', () => {
   })
 
   it('accepts non-null ISO strings on completion fields', () => {
-    const p = defaultProgress()
+    const p = defaultProgress('Friend', 7)
     const stamped: Progress = {
       ...p,
       profile: {
@@ -407,7 +410,7 @@ describe('isProgressV2', () => {
   })
 
   it('rejects out-of-range Leitner box index', () => {
-    const p = defaultProgress()
+    const p = defaultProgress('Friend', 7)
     const broken: Progress = {
       ...p,
       mathFactsLeitner: {

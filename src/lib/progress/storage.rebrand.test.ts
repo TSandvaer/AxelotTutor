@@ -46,7 +46,7 @@ describe('storage key — post-Axelot-rebrand contract', () => {
     // Round-trip a default save, then enumerate every localStorage entry.
     // The Axelot key is the only one we expect to see; the Marian key is
     // the one we explicitly forbid.
-    saveProgress(defaultProgress('Test'))
+    saveProgress(defaultProgress('Test', 7))
 
     const allKeys: string[] = []
     for (let i = 0; i < window.localStorage.length; i++) {
