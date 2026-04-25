@@ -8,7 +8,7 @@
  * Pure module: zero React, zero side effects beyond `window.localStorage`.
  */
 
-import { isProgressV1, readSchemaVersion } from './guards'
+import { isProgressV2, readSchemaVersion } from './guards'
 import { migrate } from './migrate'
 import type { Progress } from './types'
 import { CURRENT_SCHEMA_VERSION } from './types'
@@ -42,7 +42,7 @@ export function loadProgress(): Progress | null {
   if (version === null) return null
 
   if (version === CURRENT_SCHEMA_VERSION) {
-    return isProgressV1(parsed) ? parsed : null
+    return isProgressV2(parsed) ? parsed : null
   }
 
   // Different version (older or newer) — route through migrate.

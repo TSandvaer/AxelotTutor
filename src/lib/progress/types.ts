@@ -4,7 +4,17 @@
  * Source of truth for the persisted shape stored in localStorage under
  * `axelot-tutor:progress:v1`. Changes here are schema changes — bump
  * `CURRENT_SCHEMA_VERSION` and add a migration step in `migrate.ts` rather
- * than mutating the v1 contract.
+ * than mutating an existing version's contract.
+ *
+ * Shape history:
+ *   - v1: pre-setup-phase. No `age`, no setup/diagnostic timestamps.
+ *   - v2 (current): adds `age` (5..10) and `setupCompletedISO` /
+ *     `diagnosticCompletedISO` to `Profile`. See CLAUDE.md
+ *     "Setup-phase contract".
+ *
+ * Older shapes stay exported (`ProgressV1`) so migration steps have a real
+ * signature to refer to. Always migrate, never read v1 directly anywhere
+ * outside `migrate.ts`.
  */
 
 // --------------------------------------------------------------------------
@@ -95,12 +105,64 @@ export type SessionHistory = SessionHistoryEntry[]
 /** Character is fixed to Axel for v1; future skins bump the schema. */
 export type Character = 'axel'
 
+/**
+ * Supported child age band: K through ~G5. Out-of-band values are rejected
+ * by the v2 type guard. The setup screen offers exactly these tiles
+ * (CLAUDE.md "Setup-phase contract"); `defaultsForAge` (DEV-02) keys off
+ * the same set, so a literal union is the right shape — `number` would
+ * silently accept NaN, 3.14, -7, etc. on a corrupted blob.
+ */
+export type Age = 5 | 6 | 7 | 8 | 9 | 10
+
+/** All valid `Age` values, for runtime validation. */
+export const VALID_AGES: ReadonlySet<Age> = new Set<Age>([5, 6, 7, 8, 9, 10])
+
+// --------------------------------------------------------------------------
+// v1 (legacy) shape. Retained so `migrateV1toV2` has a real input type.
+// Nothing outside `migrate.ts` should read v1 directly.
+// --------------------------------------------------------------------------
+
+export interface ProfileV1 {
+  childName: string
+  character: Character
+  lastPlayedISO: string | null
+}
+
+export interface ProgressV1 {
+  schemaVersion: 1
+  profile: ProfileV1
+  skillLevels: SkillLevels
+  mathFactsLeitner: LeitnerBox<MathFact>
+  history: SessionHistory
+}
+
+// --------------------------------------------------------------------------
+// v2 (current) shape.
+// --------------------------------------------------------------------------
+
 export interface Profile {
   /** Display name, child-controlled. Capped to 24 chars at write time. */
   childName: string
+  /**
+   * Picked on the setup screen (5..10 tile). Drives `defaultsForAge` and
+   * the diagnostic probe band.
+   */
+  age: Age
   character: Character
   /** ISO 8601 timestamp of the last completed session, or null if never. */
   lastPlayedISO: string | null
+  /**
+   * ISO 8601 timestamp the setup screen was completed. Null until the
+   * child finishes setup. Migrated v1 docs land here as `null` even
+   * though they'd previously implicitly "completed" pre-setup play —
+   * the setup phase is new in v2 and we do not retro-stamp.
+   */
+  setupCompletedISO: string | null
+  /**
+   * ISO 8601 timestamp the optional diagnostic finished, or null if the
+   * child skipped it (or hasn't reached it yet).
+   */
+  diagnosticCompletedISO: string | null
 }
 
 /**
@@ -116,7 +178,7 @@ export interface MathFact {
 
 /** Top-level persisted document. Always carries `schemaVersion`. */
 export interface Progress {
-  schemaVersion: 1
+  schemaVersion: 2
   profile: Profile
   skillLevels: SkillLevels
   /** Leitner box for math facts only (literacy uses sight-word lists later). */
@@ -124,4 +186,4 @@ export interface Progress {
   history: SessionHistory
 }
 
-export const CURRENT_SCHEMA_VERSION = 1 as const
+export const CURRENT_SCHEMA_VERSION = 2 as const
