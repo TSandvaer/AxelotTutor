@@ -1,14 +1,19 @@
 /**
  * Schema migration framework.
  *
- * v1 is the current and only schema. `migrate` exists so that v2+ has a
- * place to land without rewriting the adapter. Each step takes the
- * previous shape (typed as `unknown`) and returns the next; failed
- * migrations return `null`, which the adapter treats as corrupt data.
+ * Each step takes the previous shape (typed as `unknown` at the registry
+ * boundary) and returns the next; failed migrations return `null`, which
+ * the adapter treats as corrupt data.
+ *
+ * Migration steps are pure: no localStorage, no Date.now(), no randomness.
+ * That makes them testable in isolation and replayable on a snapshot.
+ *
+ * Add new steps to `STEPS` keyed by the *source* version. The runner loops
+ * through them until `version === CURRENT_SCHEMA_VERSION`.
  */
 
-import { isProgressV1, readSchemaVersion } from './guards'
-import type { Progress } from './types'
+import { isProgressV1, isProgressV2, readSchemaVersion } from './guards'
+import type { Progress, ProgressV1 } from './types'
 import { CURRENT_SCHEMA_VERSION } from './types'
 
 /**
@@ -18,15 +23,54 @@ import { CURRENT_SCHEMA_VERSION } from './types'
 type MigrationStep = (input: unknown) => unknown | null
 
 const STEPS: Record<number, MigrationStep> = {
-  // Example for the future:
-  // 1: (input) => migrateV1ToV2(input),
+  1: (input) => {
+    if (!isProgressV1(input)) return null
+    return migrateV1toV2(input)
+  },
+}
+
+/**
+ * Pure v1 → v2 promotion.
+ *
+ * Defaults (documented in the DEV-01 ticket):
+ *   - `age = 7`               — median of the 5..10 band; the child can
+ *                               correct it on next launch via a settings
+ *                               screen once one ships. We pick median
+ *                               rather than the lowest so the child
+ *                               doesn't get demoted to easier content.
+ *   - `setupCompletedISO = null`     — the setup screen is new in v2; we do
+ *                                     not retro-stamp pre-v2 sessions as
+ *                                     "completed setup" because the data
+ *                                     it would have collected (age tile)
+ *                                     was never asked.
+ *   - `diagnosticCompletedISO = null` — same reasoning; the diagnostic is
+ *                                       opt-in in v2 and never ran in v1.
+ *
+ * `character` carries through unchanged (always `'axel'` in v1).
+ * Skill levels, Leitner box and history copy through verbatim.
+ */
+export function migrateV1toV2(v1: ProgressV1): Progress {
+  return {
+    schemaVersion: 2,
+    profile: {
+      childName: v1.profile.childName,
+      age: 7,
+      character: v1.profile.character,
+      lastPlayedISO: v1.profile.lastPlayedISO,
+      setupCompletedISO: null,
+      diagnosticCompletedISO: null,
+    },
+    skillLevels: v1.skillLevels,
+    mathFactsLeitner: v1.mathFactsLeitner,
+    history: v1.history,
+  }
 }
 
 /**
  * Run any required migrations, then validate against the current shape.
  * Returns `null` when input cannot be brought up to the current version.
  *
- * v1 = identity. The function shape is the contract; v2 plugs in here.
+ * Future-version data: refuse rather than guess.
  */
 export function migrate(oldData: unknown): Progress | null {
   let version = readSchemaVersion(oldData)
@@ -48,5 +92,5 @@ export function migrate(oldData: unknown): Progress | null {
   // Future-version data: refuse rather than guess.
   if (version > CURRENT_SCHEMA_VERSION) return null
 
-  return isProgressV1(data) ? data : null
+  return isProgressV2(data) ? data : null
 }

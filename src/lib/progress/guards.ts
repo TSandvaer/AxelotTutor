@@ -4,17 +4,24 @@
  * No runtime schema dep (zod/valibot/etc) — this module is on the hot path
  * for app boot and the bundle budget says "earn every kilobyte". A targeted
  * guard set is plenty for our shape.
+ *
+ * One guard per schema version. Each guard fully validates that version's
+ * shape; nothing is shared between them so a future v3 can change the
+ * envelope without quietly invalidating v2 readers.
  */
 
 import type {
+  Age,
   LeitnerBox,
   LeitnerItem,
   Progress,
+  ProgressV1,
   SessionHistoryEntry,
   SkillLevel,
   SkillLevels,
   SkillNode,
 } from './types'
+import { VALID_AGES } from './types'
 
 const SKILL_NODES: ReadonlySet<SkillNode> = new Set<SkillNode>([
   // Number Garden
@@ -95,8 +102,17 @@ function isHistoryEntry(v: unknown): v is SessionHistoryEntry {
   )
 }
 
-/** True iff `v` matches the v1 Progress shape exactly. */
-export function isProgressV1(v: unknown): v is Progress {
+/** True iff `n` is one of `5 | 6 | 7 | 8 | 9 | 10`. */
+export function isAge(n: unknown): n is Age {
+  return typeof n === 'number' && VALID_AGES.has(n as Age)
+}
+
+/**
+ * True iff `v` matches the v1 Progress shape exactly. Retained for
+ * `migrateV1toV2`'s input validation; app code outside `migrate.ts`
+ * should not need to call this.
+ */
+export function isProgressV1(v: unknown): v is ProgressV1 {
   if (!isObject(v)) return false
   if (v.schemaVersion !== 1) return false
   if (!isObject(v.profile)) return false
@@ -104,6 +120,27 @@ export function isProgressV1(v: unknown): v is Progress {
   if (v.profile.character !== 'axel') return false
   const last = v.profile.lastPlayedISO
   if (last !== null && typeof last !== 'string') return false
+  if (!isSkillLevels(v.skillLevels)) return false
+  if (!isLeitnerBox(v.mathFactsLeitner)) return false
+  if (!Array.isArray(v.history)) return false
+  if (!v.history.every(isHistoryEntry)) return false
+  return true
+}
+
+/** True iff `v` matches the v2 Progress shape (current) exactly. */
+export function isProgressV2(v: unknown): v is Progress {
+  if (!isObject(v)) return false
+  if (v.schemaVersion !== 2) return false
+  if (!isObject(v.profile)) return false
+  if (typeof v.profile.childName !== 'string') return false
+  if (!isAge(v.profile.age)) return false
+  if (v.profile.character !== 'axel') return false
+  const last = v.profile.lastPlayedISO
+  if (last !== null && typeof last !== 'string') return false
+  const setup = v.profile.setupCompletedISO
+  if (setup !== null && typeof setup !== 'string') return false
+  const diag = v.profile.diagnosticCompletedISO
+  if (diag !== null && typeof diag !== 'string') return false
   if (!isSkillLevels(v.skillLevels)) return false
   if (!isLeitnerBox(v.mathFactsLeitner)) return false
   if (!Array.isArray(v.history)) return false
