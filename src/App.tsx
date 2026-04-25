@@ -78,32 +78,41 @@ export default function App() {
   // `?debug=1` to the URL (works in Safari tab and PWA install both).
   const debugOn = useMemo(() => isDebugEnabled(), [])
 
+  // The `data-route` attribute is a test seam: routing tests assert which
+  // branch the splash-exit took without depending on AnimatePresence's
+  // exit-animation timing under fake timers (motion's exit queue can wedge
+  // across tests in jsdom). Production reads it for free — it's also the
+  // single source of truth the debug overlay can use to confirm what the
+  // iPad sees in real time. `className="contents"` keeps the wrapper out
+  // of the layout tree so it doesn't disturb screen styling.
   return (
-    <LazyMotion features={domAnimation} strict>
-      <MotionConfig reducedMotion="user">
-        <AnimatePresence mode="wait">
-          {route === 'splash' && (
-            <Splash key="splash" onAdvance={goAfterSplash} />
-          )}
-          {route === 'setup' && (
-            <Setup
-              key="setup"
-              onAdvance={goGreet}
-              onWantDiagnostic={goSetupDiagnostic}
-            />
-          )}
-          {route === 'diagnostic' && (
-            <Diagnostic key="diagnostic" onAdvance={goGreet} />
-          )}
-          {route === 'greet' && <Greet key="greet" onAdvance={goMath} />}
-          {route === 'math' && <Math key="math" />}
-        </AnimatePresence>
-        {/* Debug overlay sits outside AnimatePresence so it persists across
-            screen transitions. Gated on `?debug=1` so it never ships visibly
-            in normal sessions. See lib/debug/DebugOverlay.tsx for the iPad
-            QA usage notes. */}
-        {debugOn && <DebugOverlay />}
-      </MotionConfig>
-    </LazyMotion>
+    <div data-testid="app-root" data-route={route} className="contents">
+      <LazyMotion features={domAnimation} strict>
+        <MotionConfig reducedMotion="user">
+          <AnimatePresence mode="wait">
+            {route === 'splash' && (
+              <Splash key="splash" onAdvance={goAfterSplash} />
+            )}
+            {route === 'setup' && (
+              <Setup
+                key="setup"
+                onAdvance={goGreet}
+                onWantDiagnostic={goSetupDiagnostic}
+              />
+            )}
+            {route === 'diagnostic' && (
+              <Diagnostic key="diagnostic" onAdvance={goGreet} />
+            )}
+            {route === 'greet' && <Greet key="greet" onAdvance={goMath} />}
+            {route === 'math' && <Math key="math" />}
+          </AnimatePresence>
+          {/* Debug overlay sits outside AnimatePresence so it persists across
+              screen transitions. Gated on `?debug=1` so it never ships visibly
+              in normal sessions. See lib/debug/DebugOverlay.tsx for the iPad
+              QA usage notes. */}
+          {debugOn && <DebugOverlay />}
+        </MotionConfig>
+      </LazyMotion>
+    </div>
   )
 }

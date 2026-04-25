@@ -18,11 +18,8 @@ export interface DiagnosticProps {
 }
 
 // Stub: props are defined for the real screen's contract (DEV-05) but
-// not consumed here. The eslint-disable narrows the dispensation to this
-// one signature so the next dev who deletes the stub doesn't lose it.
-export default function Diagnostic(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  props: DiagnosticProps,
-) {
+// not consumed here. Underscore prefix opts out of TS noUnusedParameters
+// AND eslint @typescript-eslint/no-unused-vars (default argsIgnorePattern).
+export default function Diagnostic(_props: DiagnosticProps) {
   return <div data-testid="diagnostic-stub" />
 }
