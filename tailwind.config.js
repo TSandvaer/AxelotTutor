@@ -4,30 +4,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Placeholder Axel palette — Kyle finalizes in UX-03 (axel character bible).
+        // Axel palette — finalized in UX-03 (axel character bible).
+        // Mint-aqua scale for the body, coral accents for gills/heart.
+        // Names locked at Phase 0 to avoid screen churn; values locked here.
         axel: {
-          50: '#fff5f8',
-          100: '#ffe4ec',
-          200: '#ffc9d9',
-          300: '#ffa3bf',
-          400: '#ff7aa6',
-          500: '#f85a93',
-          600: '#e63d7a',
-          700: '#b82a5f',
-          800: '#8a1f48',
-          900: '#5c1530',
+          50: '#F0FBF8',
+          100: '#DAF3EC',
+          200: '#BFE9DD',
+          300: '#A8E0D5', // body mint (primary character fill)
+          400: '#7CCEC0',
+          500: '#5BBFAE', // body shade (tail back, body shadow stripe)
+          600: '#3FA194', // UI primary (high-contrast button alt)
+          700: '#2A7E72',
+          800: '#1A5E55',
+          900: '#0F4A40',
         },
-        // Placeholder design tokens — Kyle replaces with Axel's palette in UX-03.
-        // Names kept stable so screens that reference them don't churn between
-        // Phase 0 (placeholder values) and UX-03 (final values).
-        'axel-pink': '#FFC0CB',
-        'axel-cream': '#FFF5F0',
-        'axel-rose': '#F48FB1',
-        ink: '#3D2B3D',
-        sparkle: '#FFD966',
+        // Design-token aliases. Names kept stable since Phase 0 — values
+        // updated to the final Axel palette in UX-03 (see
+        // design/axel-character-bible.md §3 for the full audit).
+        // Note: `axel-pink` and `axel-rose` are visually CORAL hues; the
+        // names persist for backward-compat with screens that already
+        // import them.
+        'axel-pink': '#FFB5A0', // gill coral — gills, heart medallion, cheek blush
+        'axel-cream': '#FFF7EE', // background — page bg, belly fill, ribbon fill
+        'axel-rose': '#F08070', // coral deep — selected tiles, primary CTA fill
+        ink: '#3D2B3D', // text & strokes (unchanged)
+        sparkle: '#FFD966', // celebration (unchanged)
       },
       fontFamily: {
-        // System stack for now; Kyle picks web fonts later
+        // System stack for now; web fonts deferred to a future ticket.
         display: ['ui-rounded', 'system-ui', 'sans-serif'],
         body: ['system-ui', 'sans-serif'],
       },

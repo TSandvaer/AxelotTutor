@@ -1,137 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  axel-cheering.svg — PLACEHOLDER
-  Carried over from MarianLearning. Kyle replaces with the Axel cheering pose
-  in UX-03 (celebration without being frantic).
+  axel-cheering.svg — Axel-the-axolotl, cheering / celebration pose.
+  Spec: design/axel-character-bible.md (UX-03, 86c9gqq04).
+
+  Used at end-of-session and on milestone unlocks. Both arms raised high
+  above gill-line, both gill rosettes at peak fan, sparkle-eyes (4-point
+  stars), big open smile with tongue, abundant yellow sparkle puffs in a
+  loose halo. Celebration without being frantic — body upright and centered,
+  nothing flails. Reduced-motion users see the same pose, no animation
+  overlay; the pose itself communicates the joy.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Axel, cheering">
   <title>Axel — cheering</title>
-
   <g transform="translate(400 410)">
 
-    <!-- ========== BODY ========== -->
-    <ellipse cx="-46" cy="320" rx="36" ry="22" fill="#FFF5F0" stroke="#3D2B3D" stroke-width="5"/>
-    <ellipse cx=" 46" cy="320" rx="36" ry="22" fill="#FFF5F0" stroke="#3D2B3D" stroke-width="5"/>
+    <!-- TAIL -->
+    <path d="M 70 240 C 130 260, 170 280, 180 320 C 175 348, 140 358, 100 348 C 80 340, 70 318, 70 280 Z"
+      fill="#5BBFAE" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M 78 312 C 110 332, 150 332, 168 318 C 158 342, 130 354, 100 348 C 86 344, 78 330, 78 312 Z"
+      fill="#FFF7EE"/>
 
-    <path d="
-      M -110 110
-      C -130 180, -120 280, -70 310
-      C -30 322,  30 322,  70 310
-      C  120 280, 130 180, 110 110
-      C  90  90,  -90  90, -110 110 Z"
-      fill="#FFF5F0" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
-
-    <!-- Ribbon -->
-    <g transform="translate(0 165)">
-      <path d="M -34 -8 C -44 -22, -28 -28, -14 -14 L -14 6 C -28 12, -44 8, -34 -8 Z"
-        fill="#F48FB1" stroke="#3D2B3D" stroke-width="3.5" stroke-linejoin="round"/>
-      <path d="M  34 -8 C  44 -22,  28 -28,  14 -14 L  14 6 C  28 12,  44 8,  34 -8 Z"
-        fill="#F48FB1" stroke="#3D2B3D" stroke-width="3.5" stroke-linejoin="round"/>
-      <rect x="-12" y="-12" width="24" height="20" rx="4" fill="#F48FB1" stroke="#3D2B3D" stroke-width="3.5"/>
+    <!-- LEGS / FEET -->
+    <g stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+      <ellipse cx="-66" cy="318" rx="34" ry="20" fill="#A8E0D5"/>
+      <ellipse cx=" 66" cy="318" rx="34" ry="20" fill="#A8E0D5"/>
+      <path d="M -84 332 L -84 340" fill="none"/>
+      <path d="M -66 336 L -66 344" fill="none"/>
+      <path d="M -48 332 L -48 340" fill="none"/>
+      <path d="M  48 332 L  48 340" fill="none"/>
+      <path d="M  66 336 L  66 344" fill="none"/>
+      <path d="M  84 332 L  84 340" fill="none"/>
     </g>
 
-    <!-- ========== EARS (peak height, slight outward splay) ========== -->
-    <g transform="rotate(-6 -90 -110)">
-      <path d="
-        M -90 -110
-        C -150 -180, -170 -280, -150 -340
-        C -130 -370,  -90 -362,  -76 -320
-        C  -64 -270,  -64 -200,  -72 -150
-        C  -78 -126, -84 -114, -90 -110 Z"
-        fill="#FFC0CB" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
-      <path d="
-        M -88 -130
-        C -130 -190, -148 -270, -134 -316
-        C -120 -340,  -98 -334,  -90 -304
-        C  -82 -260,  -82 -210,  -86 -170
-        C  -88 -148, -88 -134, -88 -130 Z"
-        fill="#FFF5F0"/>
+    <!-- BODY -->
+    <path d="M -130 60 C -150 150, -130 270, -70 308 C -30 320, 30 320, 70 308 C 130 270, 150 150, 130 60 C 100 30, -100 30, -130 60 Z"
+      fill="#A8E0D5" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M -78 130 C -90 200, -70 290, -34 304 C -10 312, 10 312, 34 304 C 70 290, 90 200, 78 130 C 60 116, -60 116, -78 130 Z"
+      fill="#FFF7EE"/>
+
+    <!-- HEART MEDALLION -->
+    <g transform="translate(0 170)">
+      <path d="M 0 22 C -8 14, -28 14, -28 0 C -28 -14, -10 -18, 0 -6 C 10 -18, 28 -14, 28 0 C 28 14, 8 14, 0 22 Z"
+        fill="#FFB5A0" stroke="#3D2B3D" stroke-width="3.5" stroke-linejoin="round"/>
+      <ellipse cx="-12" cy="-6" rx="4" ry="6" fill="#FFF7EE" opacity="0.85"/>
     </g>
 
-    <g transform="rotate(6 90 -110)">
-      <path d="
-        M 90 -110
-        C 150 -180, 170 -280, 150 -340
-        C 130 -370,  90 -362,  76 -320
-        C  64 -270,  64 -200,  72 -150
-        C  78 -126, 84 -114, 90 -110 Z"
-        fill="#FFC0CB" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
-      <path d="
-        M 88 -130
-        C 130 -190, 148 -270, 134 -316
-        C 120 -340,  98 -334,  90 -304
-        C  82 -260,  82 -210,  86 -170
-        C  88 -148, 88 -134, 88 -130 Z"
-        fill="#FFF5F0"/>
+    <!-- LEFT GILL ROSETTE — peak fan, -4° -->
+    <g transform="rotate(-4 -94 -110)">
+      <g stroke="#3D2B3D" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M -94 -120 C -160 -190, -210 -240, -218 -206 C -218 -178, -184 -150, -140 -118 C -120 -106, -100 -106, -94 -116 Z" fill="#FFB5A0"/>
+        <path d="M -130 -158 C -172 -198, -208 -212, -210 -200" fill="none" stroke="#F08070" stroke-width="3"/>
+        <path d="M -98 -90 C -180 -100, -232 -90, -240 -60 C -230 -34, -196 -28, -156 -42 C -124 -54, -100 -68, -98 -86 Z" fill="#FFB5A0"/>
+        <path d="M -150 -76 C -210 -72, -228 -62, -226 -52" fill="none" stroke="#F08070" stroke-width="3"/>
+        <path d="M -100 -52 C -174 -36, -210 -16, -206 12 C -198 30, -164 24, -132 4 C -114 -8, -100 -28, -100 -42 Z" fill="#FFB5A0"/>
+        <path d="M -140 -22 C -188 -6, -204 8, -200 18" fill="none" stroke="#F08070" stroke-width="3"/>
+      </g>
     </g>
 
-    <!-- ========== HOOD ========== -->
-    <path d="
-      M -180 20
-      C -200 -80, -160 -170, -100 -200
-      C  -50 -220,   50 -220,  100 -200
-      C  160 -170,  200 -80,  180  20
-      C  170  60,  120  84,   80  90
-      L -80  90
-      C -120  84, -170  60, -180  20 Z"
-      fill="#FFC0CB" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
+    <!-- RIGHT GILL ROSETTE — peak fan, +4° -->
+    <g transform="rotate(4 94 -110)">
+      <g stroke="#3D2B3D" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M 94 -120 C 160 -190, 210 -240, 218 -206 C 218 -178, 184 -150, 140 -118 C 120 -106, 100 -106, 94 -116 Z" fill="#FFB5A0"/>
+        <path d="M 130 -158 C 172 -198, 208 -212, 210 -200" fill="none" stroke="#F08070" stroke-width="3"/>
+        <path d="M 98 -90 C 180 -100, 232 -90, 240 -60 C 230 -34, 196 -28, 156 -42 C 124 -54, 100 -68, 98 -86 Z" fill="#FFB5A0"/>
+        <path d="M 150 -76 C 210 -72, 228 -62, 226 -52" fill="none" stroke="#F08070" stroke-width="3"/>
+        <path d="M 100 -52 C 174 -36, 210 -16, 206 12 C 198 30, 164 24, 132 4 C 114 -8, 100 -28, 100 -42 Z" fill="#FFB5A0"/>
+        <path d="M 140 -22 C 188 -6, 204 8, 200 18" fill="none" stroke="#F08070" stroke-width="3"/>
+      </g>
+    </g>
 
-    <!-- LEFT arm (raised high, drawn AFTER hood so it appears in front;
-         path starts at body shoulder, sweeps up + outward, paw at top) -->
-    <path d="
-      M -110 110
-      C -160  80, -220  10, -240 -100
-      C -250 -160, -220 -180, -200 -150
-      C -180 -100, -150  -30, -120  60
-      C -110  90, -110 100, -110 110 Z"
-      fill="#FFF5F0" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
+    <!-- ARMS RAISED HIGH -->
+    <path d="M -120 90 C -180 50, -240 -40, -250 -160 C -252 -206, -222 -226, -202 -200 C -180 -160, -150 -80, -125 0 C -116 30, -110 60, -120 90 Z"
+      fill="#A8E0D5" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
+    <ellipse cx="-228" cy="-200" rx="20" ry="16" fill="#FFF7EE" stroke="#3D2B3D" stroke-width="4"/>
 
-    <!-- RIGHT arm -->
-    <path d="
-      M 110 110
-      C 160  80, 220  10, 240 -100
-      C 250 -160, 220 -180, 200 -150
-      C 180 -100, 150  -30, 120  60
-      C 110  90, 110 100, 110 110 Z"
-      fill="#FFF5F0" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M 120 90 C 180 50, 240 -40, 250 -160 C 252 -206, 222 -226, 202 -200 C 180 -160, 150 -80, 125 0 C 116 30, 110 60, 120 90 Z"
+      fill="#A8E0D5" stroke="#3D2B3D" stroke-width="5" stroke-linejoin="round"/>
+    <ellipse cx="228" cy="-200" rx="20" ry="16" fill="#FFF7EE" stroke="#3D2B3D" stroke-width="4"/>
 
-    <!-- ========== FACE ========== -->
-    <ellipse cx="0" cy="20" rx="116" ry="98" fill="#FFF5F0" stroke="#3D2B3D" stroke-width="5"/>
+    <!-- HEAD -->
+    <ellipse cx="0" cy="-60" rx="116" ry="100" fill="#A8E0D5" stroke="#3D2B3D" stroke-width="5"/>
 
-    <!-- SPARKLE EYES: 4-point stars in soft aubergine -->
+    <!-- SPARKLE EYES -->
     <g fill="#3D2B3D">
-      <path d="M -40 4 l 4 12 l 12 4 l -12 4 l -4 12 l -4 -12 l -12 -4 l 12 -4 z"/>
-      <path d="M  40 4 l 4 12 l 12 4 l -12 4 l -4 12 l -4 -12 l -12 -4 l 12 -4 z"/>
+      <path d="M -36 -64 l 4 12 l 12 4 l -12 4 l -4 12 l -4 -12 l -12 -4 l 12 -4 z"/>
+      <path d="M  36 -64 l 4 12 l 12 4 l -12 4 l -4 12 l -4 -12 l -12 -4 l 12 -4 z"/>
     </g>
-    <!-- Tiny white highlights inside the stars -->
-    <circle cx="-36" cy="16" r="2.5" fill="#FFF5F0"/>
-    <circle cx=" 44" cy="16" r="2.5" fill="#FFF5F0"/>
+    <circle cx="-32" cy="-58" r="2.5" fill="#FFF7EE"/>
+    <circle cx=" 40" cy="-58" r="2.5" fill="#FFF7EE"/>
 
-    <!-- Cheek blush (deeper / wider for cheer) -->
-    <ellipse cx="-66" cy="50" rx="22" ry="11" fill="#F8C8DC"/>
-    <ellipse cx=" 66" cy="50" rx="22" ry="11" fill="#F8C8DC"/>
+    <!-- CHEEK BLUSH -->
+    <ellipse cx="-58" cy="-26" rx="20" ry="10" fill="#FFB5A0" opacity="0.8"/>
+    <ellipse cx=" 58" cy="-26" rx="20" ry="10" fill="#FFB5A0" opacity="0.8"/>
 
-    <!-- Nose -->
-    <path d="M -7 38 L 7 38 L 0 48 Z"
-      fill="#F48FB1" stroke="#3D2B3D" stroke-width="2.5" stroke-linejoin="round"/>
-
-    <!-- Big open smile -->
-    <path d="M -28 60 Q 0 96, 28 60 Q 0 80, -28 60 Z"
+    <!-- BIG OPEN SMILE -->
+    <path d="M -30 -20 Q 0 14, 30 -20 Q 0 0, -30 -20 Z"
       fill="#3D2B3D" stroke="#3D2B3D" stroke-width="2" stroke-linejoin="round"/>
-    <!-- Tongue -->
-    <path d="M -14 76 Q 0 88, 14 76 Q 0 82, -14 76 Z" fill="#F48FB1"/>
+    <path d="M -14 -6 Q 0 6, 14 -6 Q 0 0, -14 -6 Z" fill="#F08070"/>
 
-    <!-- ========== FLOWER ========== -->
-    <g transform="translate(130 -120)">
-      <ellipse cx="0"   cy="-26" rx="14" ry="20" fill="#FFF5F0" stroke="#3D2B3D" stroke-width="4"/>
-      <ellipse cx="25"  cy="-8"  rx="14" ry="20" fill="#FFF5F0" stroke="#3D2B3D" stroke-width="4" transform="rotate(72 25 -8)"/>
-      <ellipse cx="15"  cy="22"  rx="14" ry="20" fill="#FFF5F0" stroke="#3D2B3D" stroke-width="4" transform="rotate(144 15 22)"/>
-      <ellipse cx="-15" cy="22"  rx="14" ry="20" fill="#FFF5F0" stroke="#3D2B3D" stroke-width="4" transform="rotate(216 -15 22)"/>
-      <ellipse cx="-25" cy="-8"  rx="14" ry="20" fill="#FFF5F0" stroke="#3D2B3D" stroke-width="4" transform="rotate(288 -25 -8)"/>
-      <circle r="12" fill="#FFD966" stroke="#3D2B3D" stroke-width="4"/>
+    <!-- LILY PAD -->
+    <g transform="translate(56 -150)">
+      <path d="M -28 0 A 28 28 0 1 1 28 0 A 28 28 0 1 1 -28 0 L -8 0 L 0 -22 L 8 0 Z"
+        fill="#7FB069" stroke="#3D2B3D" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M -16 8 Q 0 14, 16 8" fill="none" stroke="#3D2B3D" stroke-width="2" opacity="0.5"/>
     </g>
 
-    <!-- ========== ABUNDANT SPARKLE PUFFS ========== -->
+    <!-- ABUNDANT SPARKLE PUFFS -->
     <g fill="#FFD966" stroke="#3D2B3D" stroke-width="2.5" stroke-linejoin="round">
       <path d="M -300 -160 l 7 22 l 22 7 l -22 7 l -7 22 l -7 -22 l -22 -7 l 22 -7 z"/>
       <path d="M  300 -180 l 6 18 l 18 6 l -18 6 l -6 18 l -6 -18 l -18 -6 l 18 -6 z"/>
