@@ -1,0 +1,107 @@
+# Axelot Tutor
+
+A friendly learning PWA for kids ages 5–10, with **Axel the axolotl** as the
+mascot. React + Vite + TypeScript + Tailwind, Claude via a Vercel function,
+progress in localStorage. iPad-first, installable as a home-screen PWA.
+
+Forked from MarianLearning (a single-child variant); the Axelot variant
+replaces Marian's offline-baked diagnostic with an in-app setup phase
+(name + age + optional adaptive diagnostic). See `CLAUDE.md` and
+`.claude/agents/TEAM.md` for project context and team topology.
+
+## Scripts
+
+| Command                             | What it does                               |
+| ----------------------------------- | ------------------------------------------ |
+| `yarn dev`                          | Vite dev server at http://localhost:5173   |
+| `yarn build`                        | Type-check + production build into `dist/` |
+| `yarn preview`                      | Serve the production build locally         |
+| `yarn lint`                         | ESLint                                     |
+| `yarn format` / `yarn format:check` | Prettier                                   |
+| `yarn typecheck`                    | `tsc -b --noEmit`                          |
+| `yarn test`                         | Vitest (single run)                        |
+| `yarn test:watch`                   | Vitest in watch mode                       |
+| `yarn test:coverage`                | Vitest with V8 coverage                    |
+
+## Layout
+
+```
+api/
+  claude.ts            Vercel function — Anthropic proxy (stub)
+  _types.ts            shared request/response types (private — leading _)
+src/
+  App.tsx              app root
+  main.tsx             React + SW registration entry
+  index.css            Tailwind entry
+  lib/
+    audio/             iPad-Safari audio-unlock gate
+    claude/            callClaude() — browser-side wrapper around /api/claude
+    progress/          Persisted progress model (localStorage, Leitner box)
+    sfx/               Sound effects (Howler)
+    tts/               Web Speech API wrapper with boundary events
+  pwa/
+    registerServiceWorker.ts   manual SW registration (prod only)
+    sw.ts                      Workbox SW (injectManifest source)
+  router/
+    route.ts           Tiny route state machine
+  screens/
+    Splash.tsx         Screen 1 — silent auto-advance
+    Greet.tsx          Screen 2 — meet Axel, audio unlock
+    Math.tsx           Screen 3 — math (stub for now)
+  test/
+    setup.ts           Vitest + RTL setup
+public/
+  icons/               app + apple-touch icons (placeholder)
+  splash/              iPad portrait splash screens (placeholder)
+  assets/              Character SVGs, backgrounds, icons (placeholder)
+  offline.html         offline fallback page
+```
+
+## Environment
+
+Copy `.env.example` to `.env.local`. Two halves:
+
+- `VITE_CLAUDE_API_ENDPOINT` — browser-side. Default `/api/claude`. Only
+  override for unusual local setups.
+- `ANTHROPIC_API_KEY` — **server-side only**. Read by the `/api/claude`
+  Vercel function from `process.env`. **Never** prefix with `VITE_` and
+  **never** read it from `src/`. The browser bundle must not contain it.
+
+In production, set `ANTHROPIC_API_KEY` in the Vercel dashboard
+(Project Settings -> Environment Variables) for Production / Preview /
+Development as appropriate. Do not commit a populated `.env.local`.
+
+## Local development with the API function
+
+`yarn dev` runs only the Vite dev server — it cannot serve the `/api/*`
+function. To exercise the Claude endpoint locally, use the Vercel CLI:
+
+```sh
+# one-time
+npm i -g vercel
+vercel link        # links the directory to the Vercel project
+
+# every run
+vercel dev         # serves Vite on :3000 and the /api/* functions together
+```
+
+`vercel dev` reads `.env.local` automatically, so a populated
+`ANTHROPIC_API_KEY` line is enough — no Vercel-side config needed for local
+work. The function returns a stub payload until follow-up tickets wire the
+real prompt.
+
+## PWA install (iPad)
+
+1. `yarn build && yarn preview`
+2. Open the preview URL in Safari on the iPad.
+3. Share sheet -> Add to Home Screen.
+4. Launch from the home icon; the app should open full-screen in portrait.
+
+The manifest lives at `/manifest.webmanifest`. Icons and splashes in
+`public/icons/` and `public/splash/` are solid-color placeholders; Kyle
+replaces them in UX-03.
+
+## Git hooks
+
+Husky runs `yarn typecheck` and `lint-staged` on commit. Never use
+`--no-verify`; fix the cause.

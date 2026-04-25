@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* iPad PWA: disable text/tap callouts so Axel feels like an app, not a webpage */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/*
+ * Body sits behind every screen during AnimatePresence route transitions.
+ * Without this, a screen using `bg-axel-cream` that animates `opacity → 0` on
+ * exit reveals the default white UA background mid-fade — producing a
+ * cream → white → cream flash between Splash and Greet ("shared layout —
+ * no hard cut").
+ *
+ * Value MUST stay in lockstep with `tailwind.config.js` → `colors['axel-cream']`.
+ * If you change one, change the other.
+ */
+body {
+  background-color: #fff5f0; /* axel-cream */
+}
