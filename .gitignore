@@ -41,3 +41,10 @@ public/progress.json
 
 # PWA artifacts
 dev-dist
+
+# Embedded skill marketplaces — each developer clones these locally.
+# They have their own .git/ directories and would otherwise track as
+# broken gitlinks. The two tracked-as-tree skills (motion,
+# pwa-manifest-generator) are unaffected.
+.claude/skills/claude-skills
+.claude/skills/mobile-app-design
