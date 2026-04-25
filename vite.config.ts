@@ -29,9 +29,12 @@ export default defineConfig({
         description:
           'A friendly learning companion for kids ages 5–10, with Axel the axolotl.',
         lang: 'en',
-        // Placeholder theme — Kyle finalizes Axel's palette in UX-03.
-        theme_color: '#f85a93',
-        background_color: '#fff5f8',
+        // Theme/background locked to Axel palette (UX-03).
+        // theme_color = axel-rose (#F08070), the deep-coral CTA/accent hue.
+        // background_color = axel-cream (#FFF7EE), the warm page bg.
+        // See design/axel-character-bible.md §3.
+        theme_color: '#F08070',
+        background_color: '#FFF7EE',
         display: 'standalone',
         orientation: 'portrait-primary',
         start_url: '/',
